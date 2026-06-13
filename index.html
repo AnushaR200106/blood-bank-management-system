@@ -1,100 +1,512 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Blood Bank Management System</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blood Bank Management System</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #c0392b, #e74c3c);
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+    header span { font-size: 2rem; }
+    header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: 0.5px; }
+
+    /* ── LAYOUT ── */
+    .wrapper {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e74c3c;
+      color: #c0392b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── FORM ELEMENTS ── */
+    .form-group { margin-bottom: 14px; }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    input, select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 7px;
+      font-size: 0.95rem;
+      transition: border 0.2s;
+      background: #fafafa;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #e74c3c;
+      background: white;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 11px;
+      margin-top: 6px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button[type="submit"]:hover { background: #c0392b; transform: translateY(-1px); }
+
+    .msg {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 7px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: none;
+    }
+    .msg.success { background: #eafaf1; color: #1e8449; border: 1px solid #a9dfbf; display: block; }
+    .msg.error   { background: #fdedec; color: #c0392b; border: 1px solid #f5b7b1; display: block; }
+
+    /* ── RECORDS TABLE ── */
+    .full-width { grid-column: 1 / -1; }
+
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .search-bar input, .search-bar select {
+      flex: 1;
+      margin: 0;
+    }
+    .search-bar button {
+      padding: 9px 18px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .search-bar button:hover { background: #c0392b; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    thead tr { background: #c0392b; color: white; }
+    thead th { padding: 11px 14px; text-align: left; font-weight: 600; }
+    tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+    tbody tr:hover { background: #fff5f5; }
+    tbody td { padding: 10px 14px; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .badge-red   { background: #fdecea; color: #c0392b; }
+    .badge-green { background: #eafaf1; color: #1e8449; }
+    .badge-blue  { background: #eaf4fd; color: #1a5276; }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px;
+      color: #aaa;
+      font-size: 0.95rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+      grid-column: 1 / -1;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 18px 22px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .stat-icon { font-size: 2rem; }
+    .stat-num  { font-size: 1.8rem; font-weight: 700; color: #c0392b; line-height: 1; }
+    .stat-lbl  { font-size: 0.78rem; color: #888; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    @media (max-width: 700px) {
+      .wrapper { grid-template-columns: 1fr; }
+      .stats   { grid-template-columns: 1fr; }
+      .full-width { grid-column: 1; }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
 
-<h2>Donor Records</h2>
-<table>
-    <tr>
-        <th>Donor Name</th>
-        <th>Blood Group</th>
-        <th>City</th>
-    </tr>
-    <tr>
-        <td>Ravi Kumar</td>
-        <td>O+</td>
-        <td>Bangalore</td>
-    </tr>
-    <tr>
-        <td>Anita Sharma</td>
-        <td>A+</td>
-        <td>Mysore</td>
-    </tr>
-    <tr>
-        <td>Suresh Rao</td>
-        <td>B+</td>
-        <td>Hubli</td>
-    </tr>
-</table>
+<header>
+  <span>🩸</span>
+  <h1>Blood Bank Management System</h1>
+</header>
 
-<h1 class="main-title">
-    <span class="blood-icon">🩸</span>
-    Blood Bank Management System
-</h1>
+<div class="wrapper">
 
-<!-- ================= DONOR FORM ================= -->
-<h2>Donor Registration</h2>
-<form>
-    Name: <input type="text"><br><br>
-    Age: <input type="number"><br><br>
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-icon">👤</div>
+      <div>
+        <div class="stat-num" id="statDonors">0</div>
+        <div class="stat-lbl">Total Donors</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏥</div>
+      <div>
+        <div class="stat-num" id="statRequests">0</div>
+        <div class="stat-lbl">Patient Requests</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div>
+        <div class="stat-num" id="statFulfilled">0</div>
+        <div class="stat-lbl">Requests Fulfilled</div>
+      </div>
+    </div>
+  </div>
 
-    Gender:
-    <select>
-        <option value="">-- Select Gender --</option>
-        <option>Male</option>
-        <option>Female</option>
-        <option>Other</option>
-    </select>
-    <br><br>
+  <!-- DONOR REGISTRATION -->
+  <div class="card">
+    <h2>🩸 Donor Registration</h2>
+    <form id="donorForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="dName" placeholder="e.g. Ravi Kumar" required />
+      </div>
+      <div class="form-group">
+        <label>Age</label>
+        <input type="number" id="dAge" placeholder="18 – 65" min="18" max="65" required />
+      </div>
+      <div class="form-group">
+        <label>Gender</label>
+        <select id="dGender" required>
+          <option value="">-- Select Gender --</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Blood Group</label>
+        <select id="dBlood" required>
+          <option value="">-- Select Blood Group --</option>
+          <option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option>
+          <option>O+</option><option>O-</option>
+          <option>AB+</option><option>AB-</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="dPhone" placeholder="10-digit mobile number" maxlength="10" required />
+      </div>
+      <div class="form-group">
+        <label>City</label>
+        <input type="text" id="dCity" placeholder="e.g. Bangalore" required />
+      </div>
+      <button type="submit">➕ Register Donor</button>
+      <div class="msg" id="donorMsg"></div>
+    </form>
+  </div>
 
-    Blood Group:
-    <select>
-        <option value="">-- Select Blood Group --</option>
-        <option>A+</option>
-        <option>A-</option>
-        <option>B+</option>
-        <option>B-</option>
-        <option>O+</option>
-        <option>O-</option>
-        <option>AB+</option>
-        <option>AB-</option>
-    </select>
-    <br><br>
+  <!-- PATIENT REQUEST -->
+  <div class="card">
+    <h2>🏥 Patient Blood Request</h2>
+    <form id="patientForm">
+      <div class="form-group">
+        <label>Patient Name</label>
+        <input type="text" id="pName" placeholder="e.g. Anita Sharma" required />
+      </div>
+      <div class="form-group">
+        <label>Age</label>
+        <input type="number" id="pAge" placeholder="Patient age" min="1" required />
+      </div>
+      <div class="form-group">
+        <label>Blood Group Required</label>
+        <select id="pBlood" required>
+          <option value="">-- Select Blood Group --</option>
+          <option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option>
+          <option>O+</option><option>O-</option>
+          <option>AB+</option><option>AB-</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Hospital Name</label>
+        <input type="text" id="pHospital" placeholder="e.g. Manipal Hospital" required />
+      </div>
+      <div class="form-group">
+        <label>Contact Number</label>
+        <input type="tel" id="pPhone" placeholder="10-digit mobile number" maxlength="10" required />
+      </div>
+      <div class="form-group">
+        <label>Units Required</label>
+        <input type="number" id="pUnits" placeholder="Number of units" min="1" max="10" required />
+      </div>
+      <button type="submit">📋 Submit Request</button>
+      <div class="msg" id="patientMsg"></div>
+    </form>
+  </div>
 
-    Phone: <input type="text"><br><br>
-    City: <input type="text"><br><br>
-    <input type="submit" value="Register Donor">
-</form>
+  <!-- DONOR RECORDS TABLE -->
+  <div class="card full-width">
+    <h2>📋 Donor Records</h2>
+    <div class="search-bar">
+      <input type="text" id="searchName" placeholder="Search by name or city..." />
+      <select id="filterBlood">
+        <option value="">All Blood Groups</option>
+        <option>A+</option><option>A-</option>
+        <option>B+</option><option>B-</option>
+        <option>O+</option><option>O-</option>
+        <option>AB+</option><option>AB-</option>
+      </select>
+      <button onclick="filterDonors()">🔍 Search</button>
+      <button onclick="resetFilter()" style="background:#888;">Reset</button>
+    </div>
+    <table id="donorTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Blood Group</th>
+          <th>Phone</th>
+          <th>City</th>
+        </tr>
+      </thead>
+      <tbody id="donorBody">
+        <tr><td colspan="7" class="empty-state">No donors registered yet. Add one using the form.</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-<!-- ================= PATIENT FORM ================= -->
-<h2>Patient Request</h2>
-<form>
-    Patient Name: <input type="text"><br><br>
-
-    Blood Group Needed:
-    <select>
-        <option value="">-- Select Blood Group --</option>
-        <option>A+</option>
-        <option>A-</option>
-        <option>B+</option>
-        <option>B-</option>
-        <option>O+</option>
-        <option>O-</option>
-        <option>AB+</option>
-        <option>AB-</option>
-    </select>
-    <br><br>
-
-    Units Required: <input type="number"><br><br>
-    Doctor Name: <input type="text"><br><br>
-    Hospital Name: <input type="text"><br><br>
-    <input type="submit" value="Submit Request">
-</form>
+  <!-- PATIENT REQUESTS TABLE -->
+  <div class="card full-width">
+    <h2>🏥 Patient Request Records</h2>
+    <table id="patientTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Patient Name</th>
+          <th>Age</th>
+          <th>Blood Group</th>
+          <th>Hospital</th>
+          <th>Phone</th>
+          <th>Units</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="patientBody">
+        <tr><td colspan="8" class="empty-state">No requests submitted yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
 
 </div>
+
+<script>
+  // ── DATA STORE ──
+  const donors   = [];
+  const patients = [];
+
+  // ── STATS UPDATE ──
+  function updateStats() {
+    document.getElementById("statDonors").textContent    = donors.length;
+    document.getElementById("statRequests").textContent  = patients.length;
+    const fulfilled = patients.filter(p => p.status === "Fulfilled").length;
+    document.getElementById("statFulfilled").textContent = fulfilled;
+  }
+
+  // ── RENDER DONOR TABLE ──
+  function renderDonors(list) {
+    const tbody = document.getElementById("donorBody");
+    if (list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No matching donors found.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map((d, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><strong>${d.name}</strong></td>
+        <td>${d.age}</td>
+        <td>${d.gender}</td>
+        <td><span class="badge badge-red">${d.blood}</span></td>
+        <td>${d.phone}</td>
+        <td>${d.city}</td>
+      </tr>`).join("");
+  }
+
+  // ── RENDER PATIENT TABLE ──
+  function renderPatients() {
+    const tbody = document.getElementById("patientBody");
+    if (patients.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No requests submitted yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = patients.map((p, i) => {
+      const badgeClass = p.status === "Fulfilled" ? "badge-green" : "badge-blue";
+      return `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${p.name}</strong></td>
+          <td>${p.age}</td>
+          <td><span class="badge badge-red">${p.blood}</span></td>
+          <td>${p.hospital}</td>
+          <td>${p.phone}</td>
+          <td>${p.units}</td>
+          <td><span class="badge ${badgeClass}">${p.status}</span></td>
+        </tr>`;
+    }).join("");
+  }
+
+  // ── CHECK IF DONOR AVAILABLE FOR BLOOD GROUP ──
+  function checkAvailability(bloodGroup) {
+    return donors.some(d => d.blood === bloodGroup);
+  }
+
+  // ── DONOR FORM SUBMIT ──
+  document.getElementById("donorForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const name  = document.getElementById("dName").value.trim();
+    const age   = document.getElementById("dAge").value;
+    const gender= document.getElementById("dGender").value;
+    const blood = document.getElementById("dBlood").value;
+    const phone = document.getElementById("dPhone").value.trim();
+    const city  = document.getElementById("dCity").value.trim();
+    const msg   = document.getElementById("donorMsg");
+
+    if (phone.length !== 10 || isNaN(phone)) {
+      msg.className = "msg error";
+      msg.textContent = "Please enter a valid 10-digit phone number.";
+      return;
+    }
+
+    donors.push({ name, age, gender, blood, phone, city });
+    renderDonors(donors);
+    updateStats();
+
+    msg.className = "msg success";
+    msg.textContent = `✅ ${name} registered successfully as a ${blood} donor!`;
+    this.reset();
+
+    // Auto-fulfill any pending patient requests for this blood group
+    patients.forEach(p => {
+      if (p.blood === blood && p.status === "Pending") {
+        p.status = "Fulfilled";
+      }
+    });
+    renderPatients();
+    updateStats();
+  });
+
+  // ── PATIENT FORM SUBMIT ──
+  document.getElementById("patientForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const name    = document.getElementById("pName").value.trim();
+    const age     = document.getElementById("pAge").value;
+    const blood   = document.getElementById("pBlood").value;
+    const hospital= document.getElementById("pHospital").value.trim();
+    const phone   = document.getElementById("pPhone").value.trim();
+    const units   = document.getElementById("pUnits").value;
+    const msg     = document.getElementById("patientMsg");
+
+    if (phone.length !== 10 || isNaN(phone)) {
+      msg.className = "msg error";
+      msg.textContent = "Please enter a valid 10-digit phone number.";
+      return;
+    }
+
+    const available = checkAvailability(blood);
+    const status    = available ? "Fulfilled" : "Pending";
+
+    patients.push({ name, age, blood, hospital, phone, units, status });
+    renderPatients();
+    updateStats();
+
+    if (available) {
+      msg.className = "msg success";
+      msg.textContent = `✅ Request submitted! ${blood} blood is available — request fulfilled.`;
+    } else {
+      msg.className = "msg error";
+      msg.textContent = `⚠️ Request submitted. No ${blood} donor available yet — status set to Pending.`;
+    }
+    this.reset();
+  });
+
+  // ── SEARCH & FILTER ──
+  function filterDonors() {
+    const name  = document.getElementById("searchName").value.toLowerCase();
+    const blood = document.getElementById("filterBlood").value;
+    const filtered = donors.filter(d =>
+      (d.name.toLowerCase().includes(name) || d.city.toLowerCase().includes(name)) &&
+      (blood === "" || d.blood === blood)
+    );
+    renderDonors(filtered);
+  }
+
+  function resetFilter() {
+    document.getElementById("searchName").value = "";
+    document.getElementById("filterBlood").value = "";
+    renderDonors(donors);
+  }
+</script>
+
 </body>
 </html>
